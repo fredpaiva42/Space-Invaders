@@ -1,3 +1,5 @@
+import dados
+
 class Jogar:
 
     def __init__(self, janela, fundo):
@@ -9,5 +11,4 @@ class Jogar:
         self.fundo.draw()
 
         if self.teclado.key_pressed('ESC'):
-
-            self.janela.close()
+            dados.GAME_STATE = 0
