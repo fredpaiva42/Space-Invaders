@@ -4,4 +4,4 @@ Jogo desenvolvido no 2º período do curso de Ciência da Computação - UFF, pa
 
 ![](img/readme/Menu.jpg "Menu do Jogo")
 
-![](img/readme/monstros na tela.jpg)
+![](img/readme/monstros_tela.jpg "Tela do jogo")
