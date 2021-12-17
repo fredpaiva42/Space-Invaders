@@ -34,17 +34,14 @@ class Dificuldade:
         if self.mouse.is_over_object(self.button_facil):
             if self.mouse.is_button_pressed(1):
                 dados.MODO = 1
-                print(dados.MODO)
 
         if self.mouse.is_over_object(self.button_medio):
             if self.mouse.is_button_pressed(1):
                 dados.MODO = 2
-                print(dados.MODO)
 
         if self.mouse.is_over_object(self.button_dificil):
             if self.mouse.is_button_pressed(1):
                 dados.MODO = 3
-                print(dados.MODO)
 
         if self.teclado.key_pressed('ESC'):
             dados.GAME_STATE = 0
