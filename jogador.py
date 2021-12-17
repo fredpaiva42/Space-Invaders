@@ -3,6 +3,7 @@ from PPlay.sprite import *
 from PPlay.gameimage import *
 import dados
 
+
 class Jogador:
     def __init__(self, janela):
         self.janela = janela
@@ -75,13 +76,8 @@ class Jogador:
         if self.contagem == self.limitetiros:
             self.contagem = 0
 
-
         # Draw:
         self.jogador.draw()
 
         for i in range(len(self.vetTiros)):
             self.vetTiros[i].draw()
-
-
-
-
