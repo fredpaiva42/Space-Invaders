@@ -2,7 +2,7 @@ from PPlay.gameimage import GameImage
 from PPlay.window import *
 
 # inicialização
-janela = Window(1252, 840)
+janela = Window(1252, 765)
 janela.set_title('Space Invaders')
 
 fundo = GameImage("./img/background/space.png")
