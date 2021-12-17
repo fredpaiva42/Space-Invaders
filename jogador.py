@@ -58,10 +58,10 @@ class Jogador:
 
         # Colisão do Jogador:
         if self.jogador.x < 0:
-            self.jogador.set_position(0, self.janela.height - self.jogador.height)
+            self.jogador.x = self.janela.width - self.jogador.width
 
         if self.jogador.x + self.jogador.width > self.janela.width:
-            self.jogador.x = self.janela.width - self.jogador.width
+            self.jogador.set_position(0, self.janela.height - self.jogador.height * 1.2)
 
         # Atirar:
         if self.cdTiro >= self.limite:
