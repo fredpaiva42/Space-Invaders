@@ -17,6 +17,8 @@ class Monstros:
         self.maxMonstros = self.linhas * self.colunas
         self.spawnarMonstros()
 
+        self.limite = 2 / dados.MODO
+
     def spawnarMonstros(self):
         for i in range(self.linhas):
             self.matrizMonstros.append([])
@@ -38,7 +40,7 @@ class Monstros:
             for j in range(len(self.matrizMonstros[i])):
                 self.matrizMonstros[i][j].move_x(self.vel_monstros * self.janela.delta_time())
 
-                # Colisão dos Monstros e Descida:
+        # Colisão dos Monstros e Descida:
         if self.cdDescer > 0.15:
             if self.colidiu():
                 self.vel_monstros = self.vel_monstros * (-1)

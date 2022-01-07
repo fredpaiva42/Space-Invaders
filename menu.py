@@ -30,7 +30,7 @@ class Menu:
                                              self.janela.height / 1.6 - self.button_dificuldade.height / 2)
 
         self.button_sair.set_position(self.janela.width / 2 - self.button_sair.width / 2,
-                                      self.janela.height / 1.41 - self.button_sair.height / 2)
+                                      self.janela.height / 1.4 - self.button_sair.height / 2)
 
     def run(self):
         # Seleção
