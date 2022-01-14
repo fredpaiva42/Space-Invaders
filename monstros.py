@@ -2,7 +2,7 @@ from PPlay.window import *
 from PPlay.sprite import *
 from PPlay.gameimage import *
 import dados
-
+import random
 
 class Monstros:
     def __init__(self, janela):
@@ -17,6 +17,8 @@ class Monstros:
         self.maxMonstros = self.linhas * self.colunas
         self.spawnarMonstros()
 
+        self.vetTiros = []
+        self.cdTiro = 0
         self.limite = 2 / dados.MODO
 
     def spawnarMonstros(self):
@@ -33,6 +35,32 @@ class Monstros:
                     self.matrizMonstros[i][0].x <= 0):
                 return True
         return False
+
+    def atirar(self):
+        if self.cdTiro > (self.limite):
+            self.atirador = random.randint(0, self.maxMonstros)
+            self.contagem = 0
+
+            for i in range(len(self.matrizMonstros)):
+                for j in range(len(self.matrizMonstros[i])):
+                    self.contagem += 1
+                    if self.contagem == self.atirador:
+                        self.tiro = Sprite("img/monstros/tiroMonstros.png")
+                        self.tiro.set_position(
+                            self.matrizMonstros[i][j].x + self.matrizMonstros[i][j].width / 2 - self.tiro.width / 2,
+                            self.matrizMonstros[i][j].y)
+                        self.vetTiros.append(self.tiro)
+                        self.cdTiro = 0
+                        return
+        else:
+            self.cdTiro += self.janela.delta_time()
+
+    def tirosAtt(self):
+        for i in range(len(self.vetTiros)):
+            self.vetTiros[i].move_y(self.janela.delta_time() * 200)
+            if self.vetTiros[i].y >= self.janela.height:
+                self.vetTiros.pop(i)
+                break
 
     def run(self):
         # Movimentação dos Monstros:
@@ -57,3 +85,9 @@ class Monstros:
         for i in range(len(self.matrizMonstros)):
             for j in range(len(self.matrizMonstros[i])):
                 self.matrizMonstros[i][j].draw()
+
+        for i in range(len(self.vetTiros)):
+            self.vetTiros[i].draw()
+
+        self.atirar()
+        self.tirosAtt()

@@ -9,6 +9,8 @@ class Jogar:
         self.janela = janela
         self.teclado = janela.get_keyboard()
         self.fundo = fundo
+        self.nivel = 1
+
         self.jogador = Jogador(self.janela)
         self.monstros = Monstros(self.janela)
 
@@ -18,7 +20,8 @@ class Jogar:
         self.pontos = 0
         self.contador = 0
         self.relogio = 0
-        self.vitoria = False
+        self.cdRespawn = 3
+        self.lose = False
 
     def hitBox(self):
 
@@ -61,6 +64,31 @@ class Jogar:
                 return True
         return False
 
+    def tiroMonstros(self):
+        self.vetBox = self.box()
+
+        for self.atirado in (self.jogador.vetTiros):
+            if (int(self.atirado.y) >= self.vetBox[0]) and (int(self.atirado.y) <= self.vetBox[1]) and (
+                    int(self.atirado.x) >= self.vetBox[2]) and (int(self.atirado.x) <= self.vetBox[3]):
+                for self.fileira in (self.monstros.matrizMonstros):
+                    for self.monstro in self.fileira:
+                        for self.tiro in (self.jogador.vetTiros):
+                            if (self.monstro.collided(self.tiro)):
+                                self.monstros.maxMonstros -= 1
+
+                                if self.monstros.vel_monstros < 0:
+                                    self.monstros.vel_monstros -= 12
+                                else:
+                                    self.monstros.vel_monstros += 12
+
+                                self.pontos += int(10 + 50 / self.tempo)
+                                self.fileira.remove(self.monstro)
+                                self.jogador.vetTiros.remove(self.tiro)
+
+                                if (len(self.fileira)) == 0:
+                                    self.monstros.matrizMonstros.remove(self.fileira)
+                                    break
+
     def acertouMonstros(self):
         self.vetBox = self.hitBox()
 
@@ -86,8 +114,43 @@ class Jogar:
                                     self.monstros.matrizMonstros.remove(self.fileira)
                                     break
 
+    def acertouPlayer(self):
+        if self.cdRespawn >= 2.9:
+            for self.atirado in (self.monstros.vetTiros):
+                if self.colisaotiro():
+                    self.monstros.vetTiros.remove(self.atirado)
+                    self.jogador.vetVidas.pop(-1)
+
+                    if len(self.jogador.vetVidas) != 0:
+                        self.cdRespawn = 0
+
+                        if not self.jogador.debilitado:
+                            self.jogador.jogador.set_sequence_time(0, 2, 1000, True)
+                        else:
+                            self.jogador.damage = True
+                            self.jogador.jogador.set_sequence_time(2, 4, 1000, True)
+
+                        self.jogador.jogador.set_position(self.janela.width / 2 - self.jogador.jogador.width / 2,
+                                                          (self.janela.height - self.jogador.jogador.height) - 30)
+                        break
+                    else:
+                        self.lose = True
+                        break
+
+    def lost(self):
+        for i in range(len(self.monstros.matrizMonstros) - 1, -1, -1):
+            for j in range(len(self.monstros.matrizMonstros[i])):
+                if (self.monstros.matrizMonstros[i][j].y + self.monstros.matrizMonstros[i][
+                    j].height >= self.jogador.jogador.y):
+                    return True
+        return False
+
+    def game_over(self):
+        dados.GAME_STATE = 0
+
     def level(self):
         self.pontos += 100 * (5 ** (dados.MODO - 1))
+        self.nivel += 1
         self.acrescimo += 2
 
         self.monstros.colunas += 1
@@ -106,6 +169,7 @@ class Jogar:
 
         self.monstros.maxMonstros = self.monstros.colunas * self.monstros.linhas
         self.jogador.vetTiros.clear()
+        self.monstros.vetTiros.clear()
         self.tempo = 0
         self.monstros.spawnarMonstros()
 
@@ -119,20 +183,39 @@ class Jogar:
             self.relogio = 0
             self.contador = 1
 
-        if self.monstros.maxMonstros == 0:
-            self.level()
+        if not self.lose:
 
-        self.fundo.draw()
-        self.jogador.run()
-        self.monstros.run()
-        self.tempo += self.janela.delta_time()
+            if self.monstros.maxMonstros == 0:
+                self.level()
 
-        self.acertouMonstros()
+            self.fundo.draw()
+            self.jogador.run()
+            self.monstros.run()
+            self.tempo += self.janela.delta_time()
 
-        self.janela.draw_text("FPS: " + str(self.fps), 15, 10, size=30, color=(255, 255, 255), font_name='Impact',
+            if self.cdRespawn < 2.9:
+                self.jogador.jogador.update()
+                self.cdRespawn += self.janela.delta_time()
+            else:
+                if not self.jogador.debilitado:
+                    self.jogador.damage = False
+                    self.jogador.jogador.set_curr_frame(0)
+                else:
+                    self.jogador.jogador.set_curr_frame(2)
+
+            self.acertouMonstros()
+            self.acertouPlayer()
+
+            self.janela.draw_text("FPS: " + str(self.fps), 15, 10, size=30, color=(255, 255, 255), font_name='Impact',
                               bold=False, italic=False)
-        self.janela.draw_text(str("PONTOS: ") + str(self.pontos), dados.janela.width - 150, 10, size=25, color=(255, 255, 255),
+            self.janela.draw_text(str("PONTOS: ") + str(self.pontos), dados.janela.width/2 - 75, 10, size=25, color=(255, 255, 255),
                               font_name='Impact', bold=False, italic=False)
+
+            if self.lost():
+                self.lose = True
+
+        else:
+            self.game_over()
 
         if self.teclado.key_pressed('ESC'):
             dados.GAME_STATE = 0

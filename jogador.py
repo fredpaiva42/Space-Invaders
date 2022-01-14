@@ -9,19 +9,33 @@ class Jogador:
         self.janela = janela
         self.teclado = janela.get_keyboard()
         self.jogador = Sprite("./img/player/nave1.png")
+        self.jogador.set_total_duration(1000)
         self.jogador.set_position(self.janela.width / 2 - self.jogador.width / 2,
                                   (self.janela.height - self.jogador.height) - 30)
         self.vetTiros = []
         self.cdTiro = 0
 
         self.contagem = 0
+        self.debilitado = False
+        self.damage = False
+        self.cdDeb = 3
 
+        self.vetVidas = []
         if dados.MODO == 1:
+            self.maxVidas = 4
             self.limitetiros = 20
-        if dados.MODO == 2:
-            self.limitetiros = 15
-        if dados.MODO == 3:
+
+        else:
+            self.maxVidas = 3
             self.limitetiros = 10
+
+        for i in range(self.maxVidas):
+            self.vida = Sprite("img/player/vida.png")
+            self.vetVidas.append(self.vida)
+        self.vetVidas[0].set_position(self.janela.width - self.vida.width, 0)
+
+        for i in range(1, self.maxVidas):
+            self.vetVidas[i].set_position(self.vetVidas[i - 1].x - self.vida.width, 0)
 
     def atirar(self):
         self.tiro = Sprite("./img/player/tiro.png")
@@ -74,6 +88,8 @@ class Jogador:
         self.tirosAtt()
 
         if self.contagem == self.limitetiros:
+            self.cdDeb = 0
+            self.jogador.set_curr_frame(2)
             self.contagem = 0
 
         # Draw:
@@ -81,3 +97,6 @@ class Jogador:
 
         for i in range(len(self.vetTiros)):
             self.vetTiros[i].draw()
+
+        for i in range(len(self.vetVidas)):
+            self.vetVidas[i].draw()
