@@ -47,7 +47,7 @@ class Menu:
 
         if self.mouse.is_over_object(self.button_ranking):
             if self.mouse.is_button_pressed(1):
-                dados.GAME_STATE = 0
+                dados.GAME_STATE = 5
 
         if self.mouse.is_over_object(self.button_dificuldade):
             if self.mouse.is_button_pressed(1):

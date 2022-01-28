@@ -1,5 +1,6 @@
 import dados
 from jogador import Jogador
+from PPlay.sprite import *
 from monstros import Monstros
 
 
@@ -13,6 +14,9 @@ class Jogar:
 
         self.jogador = Jogador(self.janela)
         self.monstros = Monstros(self.janela)
+        self.gameOverImg = Sprite("./img/buttons/Game Over.png")
+        self.gameOverImg.set_position(self.janela.width / 2 - self.gameOverImg.width / 2,
+                                      self.janela.height / 2 - self.gameOverImg.height / 2)
 
         self.tempo = 0
         self.fps = 0
@@ -22,6 +26,7 @@ class Jogar:
         self.relogio = 0
         self.cdRespawn = 3
         self.lose = False
+        self.rankingcd = 0
 
     def hitBox(self):
 
@@ -63,31 +68,6 @@ class Jogar:
                     self.maiorX_Tiro >= self.maiorX_Nave and self.menorX_Tiro <= self.maiorX_Nave)):
                 return True
         return False
-
-    def tiroMonstros(self):
-        self.vetBox = self.box()
-
-        for self.atirado in (self.jogador.vetTiros):
-            if (int(self.atirado.y) >= self.vetBox[0]) and (int(self.atirado.y) <= self.vetBox[1]) and (
-                    int(self.atirado.x) >= self.vetBox[2]) and (int(self.atirado.x) <= self.vetBox[3]):
-                for self.fileira in (self.monstros.matrizMonstros):
-                    for self.monstro in self.fileira:
-                        for self.tiro in (self.jogador.vetTiros):
-                            if (self.monstro.collided(self.tiro)):
-                                self.monstros.maxMonstros -= 1
-
-                                if self.monstros.vel_monstros < 0:
-                                    self.monstros.vel_monstros -= 12
-                                else:
-                                    self.monstros.vel_monstros += 12
-
-                                self.pontos += int(10 + 50 / self.tempo)
-                                self.fileira.remove(self.monstro)
-                                self.jogador.vetTiros.remove(self.tiro)
-
-                                if (len(self.fileira)) == 0:
-                                    self.monstros.matrizMonstros.remove(self.fileira)
-                                    break
 
     def acertouMonstros(self):
         self.vetBox = self.hitBox()
@@ -146,6 +126,18 @@ class Jogar:
         return False
 
     def game_over(self):
+        ranking = open('ranking.txt', 'r')
+        lines = ranking.readlines()
+        name = str(input('Digite o seu nome: '))
+        line = name + ' ' + str(int(self.pontos)) + '\n'
+        lines.append(line)
+        ranking.close()
+
+        ranking = open('ranking.txt', 'w')
+        ranking.writelines(lines)
+        ranking.close()
+
+        print('O seu nome foi adicionado ao ranking!')
         dados.GAME_STATE = 0
 
     def level(self):
@@ -165,13 +157,14 @@ class Jogar:
         self.monstros.vel_monstros = (75 + (50 * dados.MODO)) + self.acrescimo
 
         if self.monstros.limite > 0.2:
-            self.monstros.limite -= 0.1
+            self.monstros.limite -= 0.5
 
         self.monstros.maxMonstros = self.monstros.colunas * self.monstros.linhas
         self.jogador.vetTiros.clear()
         self.monstros.vetTiros.clear()
         self.tempo = 0
         self.monstros.spawnarMonstros()
+
 
     def run(self):
         # FPS
@@ -207,15 +200,24 @@ class Jogar:
             self.acertouPlayer()
 
             self.janela.draw_text("FPS: " + str(self.fps), 15, 10, size=30, color=(255, 255, 255), font_name='Impact',
-                              bold=False, italic=False)
-            self.janela.draw_text(str("PONTOS: ") + str(self.pontos), dados.janela.width/2 - 75, 10, size=25, color=(255, 255, 255),
-                              font_name='Impact', bold=False, italic=False)
+                                  bold=False, italic=False)
+            self.janela.draw_text(str("PONTOS: ") + str(self.pontos), dados.janela.width / 2 - 75, 10, size=25,
+                                  color=(255, 255, 255),
+                                  font_name='Impact', bold=False, italic=False)
 
             if self.lost():
                 self.lose = True
 
+
         else:
-            self.game_over()
+            self.gameOverImg.draw()
+            self.janela.draw_text(str(int(self.pontos)), (self.janela.width / 2) - 30, (self.janela.height / 2) - 3,
+                                  size=30, color=(255, 255, 255), font_name="Impact")
+            self.rankingcd += self.janela.delta_time()
+
+            if self.rankingcd > 1:
+                self.game_over()
+                self.rankingcd = 0
 
         if self.teclado.key_pressed('ESC'):
             dados.GAME_STATE = 0
